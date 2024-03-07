@@ -1,0 +1,15 @@
+<mvc:View controllerName="my.bookshop.uiapp.controller.View1"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:smartFilterBar="sap.ui.comp.smartfilterbar" displayBlock="true"
+    xmlns="sap.m">
+    <Page id="page" title="{i18n>title}">
+<content>
+     <smartFilterBar:SmartFilterBar id="smartFilterBar" entitySet="Books" persistencyKey="Books"   >
+        <smartFilterBar:controlConfiguration >
+        <smartFilterBar:ControlConfiguration id="ID" displayBehaviour="auto" key="ID" label="{i18n>ID}" visibleInAdvancedArea="true" index="1" mandatory="mandatory" filterType="single"></smartFilterBar:ControlConfiguration>
+        </smartFilterBar:controlConfiguration>
+    </smartFilterBar:SmartFilterBar>
+    
+        </content >
+    </Page>
+</mvc:View>

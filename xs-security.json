@@ -1,0 +1,42 @@
+{
+  "xsappname": "securityproj",
+  "tenant-mode": "dedicated",
+  "description": "Security profile of called application",
+  "scopes": [
+    {
+      "name": "uaa.user",
+      "description": "UAA"
+    },
+    {
+      "name": "$XSAPPNAME.Read",
+      "description": "Read only Authorization"
+  }
+  ],
+  "attributes": [
+    {
+        "name": "ID",
+        "description": "ID",
+        "valueType": "string"
+    }
+],
+  "role-templates": [
+    {
+      "name": "Token_Exchange",
+      "description": "UAA",
+      "scope-references": [
+        "uaa.user"
+      ]
+    },
+    {
+      "name": "IDVH",
+      "description": "ID VH access",
+      "scope-references": [
+          "uaa.user",
+          "$XSAPPNAME.Read"
+      ],
+      "attribute-references": [
+          "ID"
+      ]
+  }
+  ]
+}

@@ -1,0 +1,110 @@
+_schema-version: "3.1"
+ID: securityProj
+description: A simple CAP project.
+version: 1.0.0
+modules:
+- name: securityProj-srv
+  type: nodejs
+  path: gen/srv
+  provides:
+  - name: srv-api
+    properties:
+      srv-url: ${default-url}
+  parameters:
+    buildpack: nodejs_buildpack
+  build-parameters:
+    builder: npm
+- name: securityProj-destination-content
+  type: com.sap.application.content
+  requires:
+  - name: securityProj-destination-service
+    parameters:
+      content-target: true
+  - name: securityProj_html_repo_host
+    parameters:
+      service-key:
+        name: securityProj_html_repo_host-key
+  - name: uaa_securityProj
+    parameters:
+      service-key:
+        name: uaa_securityProj-key
+  parameters:
+    content:
+      instance:
+        destinations:
+        - Name: securityProj_securityProj_html_repo_host
+          ServiceInstanceName: securityProj-html5-app-host-service
+          ServiceKeyName: securityProj_html_repo_host-key
+          sap.cloud.service: securityProj
+        - Authentication: OAuth2UserTokenExchange
+          Name: securityProj_uaa_securityProj
+          ServiceInstanceName: securityProj-xsuaa-service
+          ServiceKeyName: uaa_securityProj-key
+          sap.cloud.service: securityProj
+        existing_destinations_policy: ignore
+  build-parameters:
+    no-source: true
+- name: securityProj-app-content
+  type: com.sap.application.content
+  path: .
+  requires:
+  - name: securityProj_html_repo_host
+    parameters:
+      content-target: true
+  build-parameters:
+    build-result: resources
+    requires:
+    - artifacts:
+      - mybookshopuiapp.zip
+      name: mybookshopuiapp
+      target-path: resources/
+- name: mybookshopuiapp
+  type: html5
+  path: app/uiapp
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+resources:
+- name: securityProj-destination-service
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      HTML5Runtime_enabled: true
+      init_data:
+        instance:
+          destinations:
+          - Authentication: NoAuthentication
+            Name: ui5
+            ProxyType: Internet
+            Type: HTTP
+            URL: https://ui5.sap.com
+          existing_destinations_policy: update
+      version: 1.0.0
+    service: destination
+    service-name: securityProj-destination-service
+    service-plan: lite
+- name: securityProj_html_repo_host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-name: securityProj-html5-app-host-service
+    service-plan: app-host
+- name: uaa_securityProj
+  type: org.cloudfoundry.managed-service
+  parameters:
+    path: ./xs-security.json
+    service: xsuaa
+    service-name: securityProj-xsuaa-service
+    service-plan: application
+parameters:
+  deploy_mode: html5-repo
+  enable-parallel-deployments: true
+build-parameters:
+  before-all:
+  - builder: custom
+    commands:
+    - npx cds build --production
